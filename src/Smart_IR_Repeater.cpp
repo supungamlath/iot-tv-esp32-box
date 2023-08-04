@@ -61,10 +61,10 @@
 // The GPIO an IR detector/demodulator is connected to. Recommended: 14 (D5)
 // Note: GPIO 16 won't work on the ESP8266 as it does not have interrupts.
 // Note: GPIO 14 won't work on the ESP32-C3 as it causes the board to reboot.
-const uint16_t kRecvPin = 14;
+const uint16_t kRecvPin = 26;
 
 // GPIO to use to control the IR LED circuit. Recommended: 4 (D2).
-const uint16_t kIrLedPin = 4;
+const uint16_t kIrLedPin = 25;
 
 // The Serial connection baud rate.
 // NOTE: Make sure you set your Serial Monitor to the same speed.
@@ -150,9 +150,9 @@ void loop()
         // Display a crude timestamp & notification.
         uint32_t now = millis();
         Serial.printf(
-            "%06u.%03u: A %d-bit %s message was %ssuccessfully retransmitted.\n",
+            "%06u.%03u: A %d-bit %s message was %ssuccessfully retransmitted. The value is %d\n",
             now / 1000, now % 1000, size, typeToString(protocol).c_str(),
-            success ? "" : "un");
+            success ? "" : "un", results.command);
     }
     yield(); // Or delay(milliseconds); This ensures the ESP doesn't WDT reset.
 }
