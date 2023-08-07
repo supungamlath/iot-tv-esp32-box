@@ -12,9 +12,8 @@
 
 #define EEPROM_SIZE 384
 
-const int ledPins[] = {26, 27, 14, 13, 12};
-const int buttonPins[] = {22, 21, 19, 18, 4};
-const uint16_t kRecvPin = 23;
+const int ledPins[] = {14, 27, 12, 25};
+const uint16_t kRecvPin = 26;
 
 const String deviceName = "ESP32TVBox";
 const char *serverName = "https://server-uyxt.onrender.com/api/data/64ccb31544b32dea1157b5bd";
@@ -22,7 +21,7 @@ const char *serverName = "https://server-uyxt.onrender.com/api/data/64ccb31544b3
 String bufferReceive = "", connID = "", wifi_ssid = "", wifi_pass = "";
 long previousLedTime = 0, previousPostTime = 0;
 int ledRiderCounter = 1;
-int ledStates[] = {LOW, LOW, LOW, LOW, LOW};
+int ledStates[] = {LOW, LOW, LOW, LOW};
 enum LedStatus
 {
     OFF,
@@ -48,7 +47,7 @@ void postDataToServer();
 
 void setup()
 {
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 4; i++)
     {
         pinMode(ledPins[i], OUTPUT);
     }
@@ -230,14 +229,14 @@ void setLeds()
 {
     if (ledStatus == OFF)
     {
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 4; i++)
         {
             digitalWrite(ledPins[i], LOW);
         }
     }
     else if (ledStatus == ON)
     {
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 4; i++)
         {
             digitalWrite(ledPins[i], HIGH);
         }
@@ -247,7 +246,7 @@ void setLeds()
         if (millis() - previousLedTime > 300)
         {
             previousLedTime = millis();
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 4; i++)
             {
                 digitalWrite(ledPins[i], !digitalRead(ledPins[i]));
             }
@@ -259,15 +258,15 @@ void setLeds()
         {
             previousLedTime = millis();
 
-            if (ledRiderCounter <= 4)
+            if (ledRiderCounter <= 3)
                 digitalWrite(ledPins[ledRiderCounter], HIGH);
 
             ledRiderCounter++;
 
-            if (ledRiderCounter == 6)
+            if (ledRiderCounter == 5)
             {
                 ledRiderCounter = 0;
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 4; i++)
                 {
                     digitalWrite(ledPins[i], LOW);
                 }
@@ -276,7 +275,7 @@ void setLeds()
     }
     else if (ledStatus == STATEFUL)
     {
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 4; i++)
         {
             digitalWrite(ledPins[i], ledStates[i]);
         }
