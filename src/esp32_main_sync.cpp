@@ -12,8 +12,9 @@
 
 #define EEPROM_SIZE 384
 
-const int ledPins[] = {14, 27, 12, 25};
-const uint16_t kRecvPin = 26;
+const int ledPins[] = {26, 27, 14, 13, 12};
+const int buttonPins[] = {22, 21, 19, 18, 4};
+const uint16_t kRecvPin = 23;
 
 const String deviceName = "ESP32TVBox";
 const char *serverName = "https://server-uyxt.onrender.com/api/data/64ccb31544b32dea1157b5bd";
@@ -21,7 +22,7 @@ const char *serverName = "https://server-uyxt.onrender.com/api/data/64ccb31544b3
 String bufferReceive = "", connID = "", wifi_ssid = "", wifi_pass = "";
 long previousLedTime = 0, previousPostTime = 0;
 int ledRiderCounter = 1;
-int ledStates[] = {LOW, LOW, LOW, LOW};
+int profileStates[] = {LOW, LOW, LOW, LOW, LOW};
 enum LedStatus
 {
     OFF,
@@ -31,12 +32,12 @@ enum LedStatus
     STATEFUL
 } ledStatus;
 
-const uint16_t kCaptureBufferSize = 256; // 1024 == ~511 bits
+const uint16_t irCaptureBufferSize = 256; // 1024 == ~511 bits
 // kTimeout is the Nr. of milli-Seconds of no-more-data before we consider a message ended.
 const uint8_t kTimeout = 50; // Milli-Seconds
 
 BluetoothSerial SerialBT;
-IRrecv irrecv(kRecvPin, kCaptureBufferSize, kTimeout, false);
+IRrecv irrecv(kRecvPin, irCaptureBufferSize, kTimeout, false);
 decode_results results;
 
 void setLeds();
@@ -47,7 +48,7 @@ void postDataToServer();
 
 void setup()
 {
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 5; i++)
     {
         pinMode(ledPins[i], OUTPUT);
     }
@@ -181,19 +182,19 @@ void handleIRCommands()
 
         if (results.command == 70)
         {
-            ledStates[0] = !ledStates[0];
+            profileStates[0] = !profileStates[0];
         }
         else if (results.command == 71)
         {
-            ledStates[1] = !ledStates[1];
+            profileStates[1] = !profileStates[1];
         }
         else if (results.command == 72)
         {
-            ledStates[2] = !ledStates[2];
+            profileStates[2] = !profileStates[2];
         }
         else if (results.command == 73)
         {
-            ledStates[3] = !ledStates[3];
+            profileStates[3] = !profileStates[3];
         }
 
         irrecv.resume();
@@ -211,7 +212,7 @@ void postDataToServer()
         http.addHeader("Content-Type", "application/json");
 
         char postRequestData[256];
-        sprintf(postRequestData, "{\"deviceId\":\"%s\",\"connectionID\":\"%s\",\"person1\":\"%d\",\"person2\":\"%d\",\"person3\":\"%d\",\"person4\":\"%d\"}", connID.c_str(), connID.c_str(), ledStates[0], ledStates[1], ledStates[2], ledStates[3]);
+        sprintf(postRequestData, "{\"deviceId\":\"%s\",\"connectionID\":\"%s\",\"person1\":\"%d\",\"person2\":\"%d\",\"person3\":\"%d\",\"person4\":\"%d\"}", connID.c_str(), connID.c_str(), profileStates[0], profileStates[1], profileStates[2], profileStates[3]);
 
         int httpResponseCode = http.PUT(postRequestData);
 
@@ -229,14 +230,14 @@ void setLeds()
 {
     if (ledStatus == OFF)
     {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 5; i++)
         {
             digitalWrite(ledPins[i], LOW);
         }
     }
     else if (ledStatus == ON)
     {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 5; i++)
         {
             digitalWrite(ledPins[i], HIGH);
         }
@@ -246,7 +247,7 @@ void setLeds()
         if (millis() - previousLedTime > 300)
         {
             previousLedTime = millis();
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 5; i++)
             {
                 digitalWrite(ledPins[i], !digitalRead(ledPins[i]));
             }
@@ -258,15 +259,15 @@ void setLeds()
         {
             previousLedTime = millis();
 
-            if (ledRiderCounter <= 3)
+            if (ledRiderCounter <= 4)
                 digitalWrite(ledPins[ledRiderCounter], HIGH);
 
             ledRiderCounter++;
 
-            if (ledRiderCounter == 5)
+            if (ledRiderCounter == 6)
             {
                 ledRiderCounter = 0;
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < 5; i++)
                 {
                     digitalWrite(ledPins[i], LOW);
                 }
@@ -275,9 +276,9 @@ void setLeds()
     }
     else if (ledStatus == STATEFUL)
     {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 5; i++)
         {
-            digitalWrite(ledPins[i], ledStates[i]);
+            digitalWrite(ledPins[i], profileStates[i]);
         }
     }
 }

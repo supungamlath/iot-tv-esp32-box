@@ -72,7 +72,7 @@ const uint32_t kBaudRate = 115200;
 
 // As this program is a special purpose capture/resender, let's use a larger
 // than expected buffer so we can handle very large IR messages.
-const uint16_t kCaptureBufferSize = 1024; // 1024 == ~511 bits
+const uint16_t irCaptureBufferSize = 1024; // 1024 == ~511 bits
 
 // kTimeout is the Nr. of milli-Seconds of no-more-data before we consider a
 // message ended.
@@ -86,7 +86,7 @@ const uint16_t kFrequency = 38000; // in Hz. e.g. 38kHz.
 // The IR transmitter.
 IRsend irsend(kIrLedPin);
 // The IR receiver.
-IRrecv irrecv(kRecvPin, kCaptureBufferSize, kTimeout, false);
+IRrecv irrecv(kRecvPin, irCaptureBufferSize, kTimeout, false);
 // Somewhere to store the captured message.
 decode_results results;
 
